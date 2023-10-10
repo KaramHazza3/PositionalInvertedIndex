@@ -10,6 +10,11 @@
 using json = nlohmann::json;
 using namespace std;
 
+string folderPath = "C:/Users/karam/OneDrive/Desktop/files";
+string invertedIndexPath = "C:/Users/karam/OneDrive/Desktop/pos_inverted_index.json";
+string newDocPath = "C:/Users/karam/OneDrive/Desktop/new_file.txt";
+string csvFilePath = "C:/Users/karam/OneDrive/Desktop/docId_filePath_mapping.csv";
+
 void processDocument(const string& filePath, int docId, unordered_map<string, list<Document*>>& terms) {
     ifstream file(filePath);
     if (!file.is_open()) {
@@ -47,7 +52,7 @@ void processDocument(const string& filePath, int docId, unordered_map<string, li
 
 void createDocIdFilePathCSV(const string& folderPath) {
     try {
-        ofstream csvFile("C:/Users/karam/OneDrive/Desktop/docId_filePath_mapping.csv");
+        ofstream csvFile(csvFilePath);
         csvFile << "docId, filePath" << endl;
 
         if (!csvFile.is_open()) {
@@ -154,7 +159,7 @@ void addNewDocument(const string& filePath, const string& invertedIndexPath,cons
         }
     }
 
-    ofstream outputFile("C:/Users/karam/OneDrive/Desktop/pos_inverted_index.json");
+    ofstream outputFile(invertedIndexPath);
     outputFile << setw(4) << jsonData << endl;
     outputFile.close();
     cout << "The inverted index has been updated" << endl;
@@ -305,11 +310,6 @@ vector<int> queryResult(const vector<string>& userInput, const string& invertedI
 
 
 int main() {
-
-    string folderPath = "C:/Users/karam/OneDrive/Desktop/input_docs";
-    string invertedIndexPath = "C:/Users/karam/OneDrive/Desktop/pos_inverted_index.json";
-    string newDocPath = "C:/Users/karam/OneDrive/Desktop/new_file.txt";
-    string csvFilePath = "C:/Users/karam/OneDrive/Desktop/docId_filePath_mapping.csv";
     unordered_map<string, list<Document*>> terms;
 
     createDocIdFilePathCSV(folderPath);
@@ -323,7 +323,7 @@ int main() {
     }
     writeJsonToFile(terms, invertedIndexPath);
     addNewDocument(newDocPath, invertedIndexPath, csvFilePath, docId);
-    //deleteDocument(3, invertedIndexPath, csvFilePath);
+    deleteDocument(3, invertedIndexPath, csvFilePath);
 
     string input;
     cout << "Enter your query: ";
