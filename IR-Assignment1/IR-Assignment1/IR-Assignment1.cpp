@@ -8,12 +8,14 @@
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
+namespace fs = std::filesystem;
 using namespace std;
 
-string folderPath = "C:/Users/karam/OneDrive/Desktop/files";
-string invertedIndexPath = "C:/Users/karam/OneDrive/Desktop/pos_inverted_index.json";
-string newDocPath = "C:/Users/karam/OneDrive/Desktop/new_file.txt";
-string csvFilePath = "C:/Users/karam/OneDrive/Desktop/docId_filePath_mapping.csv";
+string currentPath = fs::current_path().string();
+string folderPath = currentPath + "/files";
+string invertedIndexPath = "pos_inverted_index.json";
+string newDocPath = "new_file.txt";
+string csvFilePath = "docId_filePath_mapping.csv";
 
 void processDocument(const string& filePath, int docId, unordered_map<string, list<Document*>>& terms) {
     ifstream file(filePath);
@@ -178,15 +180,26 @@ void deleteDocument(int docId, const string& invertedIndexPath, const string& cs
     invertedIndexFile >> invertedIndexData;
     invertedIndexFile.close();
 
+    vector<json::iterator> termsToRemove;
+
     for (json::iterator it = invertedIndexData.begin(); it != invertedIndexData.end(); ++it) {
         json& termData = *it;
         json& docArray = termData[1];
 
         docArray.erase(remove_if(docArray.begin(), docArray.end(),
-            [docId](const json& x) {return x["docId"] == docId; }), docArray.end());
+            [docId](const json& x) { return x["docId"] == docId; }), docArray.end());
 
         termData[0] = docArray.size();
+
+        if (docArray.size() == 0) {
+            termsToRemove.push_back(it);
+        }
     }
+
+    for (const auto& it : termsToRemove) {
+        invertedIndexData.erase(it);
+    }
+
     ofstream updatedInvertedIndexFile(invertedIndexPath);
     updatedInvertedIndexFile << setw(4) << invertedIndexData << endl;
     updatedInvertedIndexFile.close();

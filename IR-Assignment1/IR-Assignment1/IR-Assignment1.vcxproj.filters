@@ -35,4 +35,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="new_file.txt" />
+  </ItemGroup>
 </Project>
